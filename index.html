@@ -29,10 +29,7 @@
     --bulb-off: #5c4a0e;
     --rule: rgba(245, 242, 232, 0.18);
 
-    /* System font stacks — no downloads required.
-       Display: condensed/heavy "headline" sans, falling back through
-       common installs across macOS, Windows, and Linux.
-       Mono: matches whatever the OS uses for code. */
+    /* System fonts — no downloads required. */
     --font-display: "Haettenschweiler", "Impact", "Franklin Gothic Bold",
       "Arial Narrow Bold", "Liberation Sans Narrow", sans-serif;
     --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", "Cascadia Mono",
@@ -289,6 +286,8 @@
   }
   .bottom .lfny { color: var(--yellow); font-weight: 700; }
   .bottom .meta { color: var(--paper); opacity: 0.5; }
+  .bottom .meta a { color: inherit; text-decoration: none; }
+  .bottom .meta a:hover { text-decoration: underline; text-decoration-style: dotted; }
 
   /* season over state */
   .season-over .answer {
@@ -338,7 +337,7 @@
     <div class="bulbs" id="bulbsBottom"></div>
 
     <header class="topbar">
-      <div class="brand"><span class="live-dot"></span>SATURDAY NIGHT LIVE · S51</div>
+      <div class="brand"><span class="live-dot"></span><span id="brandText">SATURDAY NIGHT LIVE</span></div>
       <div class="date" id="todayDate">—</div>
     </header>
 
@@ -348,36 +347,34 @@
 
     <footer class="bottom">
       <div class="lfny">LIVE FROM NEW YORK · IT'S SATURDAY NIGHT</div>
-      <div class="meta">11:30 PM ET / 8:30 PM PT · NBC + PEACOCK</div>
+      <div class="meta">11:30 PM ET / 8:30 PM PT · NBC + PEACOCK · DATA FROM <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVMAZE</a></div>
     </footer>
   </main>
 
 <script>
-  // --- Season 51 hardcoded schedule -------------------------------------
-  // Source: NBC, Hollywood Reporter, Wikipedia (verified April 2026).
-  // To update: edit this array. Dates are YYYY-MM-DD (the Saturday airdate).
+  // --- schedule ---------------------------------------------------------
   const SCHEDULE = [
     // --- SCHEDULE:START (auto-updated by scripts/update_schedule.py) ---
-    { date: "2025-10-04", host: "Bad Bunny", guest: "Doja Cat" },
-    { date: "2025-10-11", host: "Amy Poehler", guest: "Role Model" },
-    { date: "2025-10-18", host: "Sabrina Carpenter", guest: "Sabrina Carpenter", double: true },
-    { date: "2025-11-01", host: "Miles Teller", guest: "Brandi Carlile" },
-    { date: "2025-11-08", host: "Nikki Glaser", guest: "sombr" },
-    { date: "2025-11-15", host: "Glen Powell", guest: "Olivia Dean" },
-    { date: "2025-12-06", host: "Melissa McCarthy", guest: "Dijon" },
-    { date: "2025-12-13", host: "Josh O'Connor", guest: "Lily Allen" },
-    { date: "2025-12-20", host: "Ariana Grande", guest: "Cher" },
-    { date: "2026-01-17", host: "Finn Wolfhard", guest: "A$AP Rocky" },
-    { date: "2026-01-24", host: "Teyana Taylor", guest: "Geese" },
-    { date: "2026-01-31", host: "Alexander Skarsgård", guest: "Cardi B", note: "1,000th episode" },
-    { date: "2026-02-28", host: "Connor Storrie", guest: "Mumford & Sons" },
-    { date: "2026-03-07", host: "Ryan Gosling", guest: "Gorillaz" },
-    { date: "2026-03-14", host: "Harry Styles", guest: "Harry Styles", double: true },
-    { date: "2026-04-04", host: "Jack Black", guest: "Jack White" },
-    { date: "2026-04-11", host: "Colman Domingo", guest: "Anitta" },
-    { date: "2026-05-02", host: "Olivia Rodrigo", guest: "Olivia Rodrigo", double: true },
-    { date: "2026-05-09", host: "Matt Damon", guest: "Noah Kahan" },
-    { date: "2026-05-16", host: "Will Ferrell", guest: "Paul McCartney", note: "Season finale" },
+    { date: "2025-10-04", season: 51, host: "Bad Bunny", guest: "Doja Cat" },
+    { date: "2025-10-11", season: 51, host: "Amy Poehler", guest: "Role Model" },
+    { date: "2025-10-18", season: 51, host: "Sabrina Carpenter", guest: "Sabrina Carpenter", double: true },
+    { date: "2025-11-01", season: 51, host: "Miles Teller", guest: "Brandi Carlile" },
+    { date: "2025-11-08", season: 51, host: "Nikki Glaser", guest: "sombr" },
+    { date: "2025-11-15", season: 51, host: "Glen Powell", guest: "Olivia Dean" },
+    { date: "2025-12-06", season: 51, host: "Melissa McCarthy", guest: "Dijon" },
+    { date: "2025-12-13", season: 51, host: "Josh O'Connor", guest: "Lily Allen" },
+    { date: "2025-12-20", season: 51, host: "Ariana Grande", guest: "Cher" },
+    { date: "2026-01-17", season: 51, host: "Finn Wolfhard", guest: "A$AP Rocky" },
+    { date: "2026-01-24", season: 51, host: "Teyana Taylor", guest: "Geese" },
+    { date: "2026-01-31", season: 51, host: "Alexander Skarsgård", guest: "Cardi B", note: "1,000th episode" },
+    { date: "2026-02-28", season: 51, host: "Connor Storrie", guest: "Mumford & Sons" },
+    { date: "2026-03-07", season: 51, host: "Ryan Gosling", guest: "Gorillaz" },
+    { date: "2026-03-14", season: 51, host: "Harry Styles", guest: "Harry Styles", double: true },
+    { date: "2026-04-04", season: 51, host: "Jack Black", guest: "Jack White" },
+    { date: "2026-04-11", season: 51, host: "Colman Domingo", guest: "Anitta" },
+    { date: "2026-05-02", season: 51, host: "Olivia Rodrigo", guest: "Olivia Rodrigo", double: true },
+    { date: "2026-05-09", season: 51, host: "Matt Damon", guest: "Noah Kahan" },
+    { date: "2026-05-16", season: 51, host: "Will Ferrell", guest: "Paul McCartney", note: "Season finale" },
     // --- SCHEDULE:END ---
   ];
 
@@ -483,6 +480,16 @@
     main.replaceChildren(); // clear
 
     const ep = findEpisode(key);
+    const next = findNextAfter(key);
+    const finale = SCHEDULE.length ? SCHEDULE[SCHEDULE.length - 1] : null;
+
+    // The most relevant season for the brand display: current episode's
+    // season > next episode's season > most recent finale's season.
+    const season = ep?.season ?? next?.season ?? finale?.season;
+    const brandText = season
+      ? `SATURDAY NIGHT LIVE · S${season}`
+      : "SATURDAY NIGHT LIVE";
+    document.getElementById("brandText").textContent = brandText;
 
     if (ep) {
       // YES — new episode this Saturday
@@ -503,16 +510,14 @@
       return;
     }
 
-    const next = findNextAfter(key);
-
     if (!next) {
       // Season is over
       stage.classList.add("season-over");
-      const finale = SCHEDULE[SCHEDULE.length - 1];
+      const seasonLabel = finale?.season ? `Season ${finale.season}` : "Season";
       main.append(
         el("div", { class: "question" }, "Is SNL new this week?"),
         el("div", { class: "answer no" }, "NO."),
-        el("div", { class: "subhead" }, "Season has wrapped"),
+        el("div", { class: "subhead" }, `${seasonLabel} has ended`),
         el("div", { class: "details single" },
           el("div", { class: "detail" },
             el("div", { class: "detail-label" }, "Last Episode Aired"),
