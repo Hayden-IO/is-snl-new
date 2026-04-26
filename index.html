@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Is SNL New This Week?</title>
 <meta name="description" content="Is SNL new this week? A quick yes/no answer with host and musical guest details for the current Saturday." />
 <meta name="theme-color" content="#0a0a0a" />
@@ -19,9 +19,6 @@
 
 <!-- Favicon: yellow bulb on black, matches the marquee aesthetic -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0a0a'/><circle cx='50' cy='50' r='26' fill='%23ffd60a'/><circle cx='42' cy='42' r='8' fill='%23fff4b8' opacity='0.7'/></svg>" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
   :root {
     --ink: #0a0a0a;
@@ -32,16 +29,23 @@
     --bulb-on: #fff4b8;
     --bulb-off: #5c4a0e;
     --rule: rgba(245, 242, 232, 0.18);
+
+    /* System font stacks — no downloads required.
+       Display: condensed/heavy "headline" sans, falling back through
+       common installs across macOS, Windows, and Linux.
+       Mono: matches whatever the OS uses for code. */
+    --font-display: "Haettenschweiler", "Impact", "Franklin Gothic Bold",
+      "Arial Narrow Bold", "Liberation Sans Narrow", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", "Cascadia Mono",
+      "Menlo", "Consolas", "Liberation Mono", monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   html, body {
-    height: 100%;
     background: var(--ink);
     color: var(--paper);
-    font-family: "JetBrains Mono", ui-monospace, monospace;
-    overflow-x: hidden;
+    font-family: var(--font-mono);
   }
 
   /* film grain */
@@ -58,7 +62,7 @@
 
   /* marquee bulb borders */
   .bulbs {
-    position: fixed;
+    position: absolute;
     left: 0;
     right: 0;
     height: 14px;
@@ -68,8 +72,8 @@
     z-index: 50;
     pointer-events: none;
   }
-  .bulbs.top { top: 14px; }
-  .bulbs.bottom { bottom: 14px; }
+  #bulbsTop { top: calc(14px + env(safe-area-inset-top, 0px)); }
+  #bulbsBottom { bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
 
   .bulb {
     width: 10px;
@@ -89,11 +93,12 @@
 
   /* layout */
   .stage {
-    min-height: 100dvh;
-    padding: 56px clamp(24px, 5vw, 80px) 56px;
+    height: 100dvh;
+    overflow: hidden;
+    padding: clamp(36px, 5vh, 56px) clamp(24px, 5vw, 80px);
     display: flex;
     flex-direction: column;
-    gap: clamp(24px, 4vh, 48px);
+    gap: clamp(14px, 2.5vh, 36px);
     position: relative;
     z-index: 1;
   }
@@ -112,7 +117,7 @@
     animation: fadeIn 0.6s ease-out 0.2s forwards;
   }
   .topbar .brand {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 900;
     font-size: 20px;
     letter-spacing: 0.04em;
@@ -146,7 +151,7 @@
   }
 
   .question {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: clamp(18px, 2.4vw, 28px);
     letter-spacing: 0.32em;
@@ -157,9 +162,9 @@
   }
 
   .answer {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 900;
-    font-size: clamp(130px, 30vw, 420px);
+    font-size: min(clamp(110px, 30vw, 420px), 32vh);
     line-height: 0.82;
     color: var(--yellow);
     letter-spacing: -0.04em;
@@ -172,6 +177,16 @@
     animation: dropIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards;
   }
 
+  /* On desktop, also cap by viewport height so short laptop screens fit */
+  @media (min-width: 701px) {
+    .answer { font-size: min(clamp(140px, 33vw, 580px), 48vh); }
+  }
+
+  /* On tall screens (most external monitors), let it grow even further */
+  @media (min-width: 701px) and (min-height: 851px) {
+    .answer { font-size: min(clamp(160px, 36vw, 640px), 54vh); }
+  }
+
   .answer.no { color: var(--paper); text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink); }
 
   @keyframes dropIn {
@@ -182,7 +197,7 @@
   @keyframes fadeIn { to { opacity: 1; } }
 
   .subhead {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 700;
     font-size: clamp(14px, 1.5vw, 18px);
     letter-spacing: 0.28em;
@@ -215,7 +230,7 @@
   .detail:last-child { border-right: none; }
 
   .detail-label {
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     font-weight: 500;
     font-size: 11px;
     letter-spacing: 0.24em;
@@ -235,7 +250,7 @@
   }
 
   .detail-value {
-    font-family: "Big Shoulders Display", sans-serif;
+    font-family: var(--font-display);
     font-weight: 800;
     font-size: clamp(28px, 3.8vw, 52px);
     line-height: 1;
@@ -244,10 +259,18 @@
     color: var(--paper);
   }
 
+  /* Tighten details on desktop so the whole page fits */
+  @media (min-width: 701px) {
+    .details { margin-top: clamp(12px, 2.5vh, 32px); }
+    .detail { padding: clamp(14px, 2.2vh, 28px) clamp(16px, 3vw, 32px); }
+    .detail-label { margin-bottom: clamp(6px, 1vh, 12px); }
+    .detail-value { font-size: min(clamp(28px, 3.4vw, 48px), 6.5vh); }
+  }
+
   .detail-value.double::after {
     content: "★ DOUBLE DUTY";
     display: block;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -260,7 +283,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    font-family: "JetBrains Mono", monospace;
+    font-family: var(--font-mono);
     font-size: 11px;
     letter-spacing: 0.18em;
     text-transform: uppercase;
@@ -276,7 +299,13 @@
 
   /* mobile */
   @media (max-width: 700px) {
-    .stage { padding: 44px 18px 44px; gap: 24px; }
+    .stage {
+      padding:
+        calc(44px + env(safe-area-inset-top, 0px))
+        18px
+        calc(44px + env(safe-area-inset-bottom, 0px));
+      gap: 24px;
+    }
     .bulbs { padding: 0 12px; }
     .bulb { width: 7px; height: 7px; }
     .topbar { flex-direction: column; gap: 6px; }
@@ -289,10 +318,10 @@
 </style>
 </head>
 <body>
-  <div class="bulbs top" id="bulbsTop"></div>
-  <div class="bulbs bottom" id="bulbsBottom"></div>
-
   <main class="stage" id="stage">
+    <div class="bulbs" id="bulbsTop"></div>
+    <div class="bulbs" id="bulbsBottom"></div>
+
     <header class="topbar">
       <div class="brand"><span class="live-dot"></span>SATURDAY NIGHT LIVE · S51</div>
       <div class="date" id="todayDate">—</div>
@@ -313,26 +342,28 @@
   // Source: NBC, Hollywood Reporter, Wikipedia (verified April 2026).
   // To update: edit this array. Dates are YYYY-MM-DD (the Saturday airdate).
   const SCHEDULE = [
-    { date: "2025-10-04", host: "Bad Bunny",          guest: "Doja Cat" },
-    { date: "2025-10-11", host: "Amy Poehler",        guest: "Role Model" },
-    { date: "2025-10-18", host: "Sabrina Carpenter",  guest: "Sabrina Carpenter", double: true },
-    { date: "2025-11-01", host: "Miles Teller",       guest: "Brandi Carlile" },
-    { date: "2025-11-08", host: "Nikki Glaser",       guest: "sombr" },
-    { date: "2025-11-15", host: "Glen Powell",        guest: "Olivia Dean" },
-    { date: "2025-12-06", host: "Melissa McCarthy",   guest: "Dijon" },
-    { date: "2025-12-13", host: "Josh O'Connor",      guest: "Lily Allen" },
-    { date: "2025-12-20", host: "Ariana Grande",      guest: "Cher" },
-    { date: "2026-01-17", host: "Finn Wolfhard",      guest: "A$AP Rocky" },
-    { date: "2026-01-24", host: "Teyana Taylor",      guest: "Geese" },
-    { date: "2026-01-31", host: "Alexander Skarsgård",guest: "Cardi B", note: "1,000th episode" },
-    { date: "2026-02-28", host: "Connor Storrie",     guest: "Mumford & Sons" },
-    { date: "2026-03-07", host: "Ryan Gosling",       guest: "Gorillaz" },
-    { date: "2026-03-14", host: "Harry Styles",       guest: "Harry Styles", double: true },
-    { date: "2026-04-04", host: "Jack Black",         guest: "Jack White" },
-    { date: "2026-04-11", host: "Colman Domingo",     guest: "Anitta" },
-    { date: "2026-05-02", host: "Olivia Rodrigo",     guest: "Olivia Rodrigo", double: true },
-    { date: "2026-05-09", host: "Matt Damon",         guest: "Noah Kahan" },
-    { date: "2026-05-16", host: "Will Ferrell",       guest: "Paul McCartney", note: "Season finale" },
+    // --- SCHEDULE:START (auto-updated by scripts/update_schedule.py) ---
+    { date: "2025-10-04", host: "Bad Bunny", guest: "Doja Cat" },
+    { date: "2025-10-11", host: "Amy Poehler", guest: "Role Model" },
+    { date: "2025-10-18", host: "Sabrina Carpenter", guest: "Sabrina Carpenter", double: true },
+    { date: "2025-11-01", host: "Miles Teller", guest: "Brandi Carlile" },
+    { date: "2025-11-08", host: "Nikki Glaser", guest: "sombr" },
+    { date: "2025-11-15", host: "Glen Powell", guest: "Olivia Dean" },
+    { date: "2025-12-06", host: "Melissa McCarthy", guest: "Dijon" },
+    { date: "2025-12-13", host: "Josh O'Connor", guest: "Lily Allen" },
+    { date: "2025-12-20", host: "Ariana Grande", guest: "Cher" },
+    { date: "2026-01-17", host: "Finn Wolfhard", guest: "A$AP Rocky" },
+    { date: "2026-01-24", host: "Teyana Taylor", guest: "Geese" },
+    { date: "2026-01-31", host: "Alexander Skarsgård", guest: "Cardi B", note: "1,000th episode" },
+    { date: "2026-02-28", host: "Connor Storrie", guest: "Mumford & Sons" },
+    { date: "2026-03-07", host: "Ryan Gosling", guest: "Gorillaz" },
+    { date: "2026-03-14", host: "Harry Styles", guest: "Harry Styles", double: true },
+    { date: "2026-04-04", host: "Jack Black", guest: "Jack White" },
+    { date: "2026-04-11", host: "Colman Domingo", guest: "Anitta" },
+    { date: "2026-05-02", host: "Olivia Rodrigo", guest: "Olivia Rodrigo", double: true },
+    { date: "2026-05-09", host: "Matt Damon", guest: "Noah Kahan" },
+    { date: "2026-05-16", host: "Will Ferrell", guest: "Paul McCartney", note: "Season finale" },
+    // --- SCHEDULE:END ---
   ];
 
   // --- helpers ----------------------------------------------------------
