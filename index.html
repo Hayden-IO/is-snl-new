@@ -24,7 +24,6 @@
     --ink: #0a0a0a;
     --paper: #f5f2e8;
     --yellow: #ffd60a;
-    --yellow-soft: #f5c518;
     --red: #e63946;
     --bulb-on: #fff4b8;
     --bulb-off: #5c4a0e;
@@ -83,8 +82,6 @@
     box-shadow: 0 0 8px var(--bulb-on), 0 0 16px rgba(255, 244, 184, 0.4);
     animation: chase 1.2s steps(1) infinite;
   }
-  .bulb:nth-child(2n) { animation-delay: 0.4s; }
-  .bulb:nth-child(3n) { animation-delay: 0.8s; }
 
   @keyframes chase {
     0%, 50% { background: var(--bulb-on); box-shadow: 0 0 8px var(--bulb-on), 0 0 16px rgba(255, 244, 184, 0.5); }
@@ -294,8 +291,25 @@
   .bottom .meta { color: var(--paper); opacity: 0.5; }
 
   /* season over state */
-  .season-over .answer { font-size: clamp(80px, 14vw, 200px); color: var(--red); }
-  .season-over .answer { text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink); }
+  .season-over .answer {
+    font-size: clamp(80px, 14vw, 200px);
+    color: var(--red);
+    text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink);
+  }
+
+  /* Respect users who've requested reduced motion: disable animations
+     but ensure entrance-animated elements stay visible (they default to
+     opacity:0 / translated, expecting the animation to bring them in). */
+  @media (prefers-reduced-motion: reduce) {
+    .topbar, .question, .answer, .subhead, .details, .bottom {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    .topbar .brand .live-dot, .bulb {
+      animation: none;
+    }
+  }
 
   /* mobile */
   @media (max-width: 700px) {
@@ -313,7 +327,8 @@
     .detail { border-right: none; border-bottom: 1px solid var(--rule); }
     .detail:last-child { border-bottom: none; }
     .bottom { flex-direction: column; gap: 8px; }
-    .answer { text-shadow: 3px 3px 0 var(--red), 5px 5px 0 var(--ink); }
+    .answer, .answer.no { text-shadow: 3px 3px 0 var(--red), 5px 5px 0 var(--ink); }
+    .answer.no { text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 var(--ink); }
   }
 </style>
 </head>
@@ -425,34 +440,66 @@
     makeBulbs(document.getElementById("bulbsBottom"));
   });
 
+  // --- DOM helpers ------------------------------------------------------
+  // Tiny element builder. All text content goes through createTextNode,
+  // so host/guest names with &, <, > render as text — not HTML.
+  function el(tag, attrs, ...children) {
+    const node = document.createElement(tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (v == null || v === false) continue;
+        if (k === "class") node.className = v;
+        else node.setAttribute(k, v);
+      }
+    }
+    for (const c of children) {
+      if (c == null || c === false) continue;
+      node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    }
+    return node;
+  }
+
+  function detailCell(label, value, doubleDuty) {
+    return el("div", { class: "detail" },
+      el("div", { class: "detail-label" }, label),
+      el("div", { class: doubleDuty ? "detail-value double" : "detail-value" }, value),
+    );
+  }
+
   // --- render -----------------------------------------------------------
+  let lastRenderedKey = null;
+
   function render() {
     const key = thisWeeksSaturday();
+    // Skip work if nothing has changed since last render (e.g. user
+    // tabs back into the page on the same day).
+    if (key === lastRenderedKey) return;
+    lastRenderedKey = key;
+
     document.getElementById("todayDate").textContent = fmtTopbar(key);
 
+    const stage = document.getElementById("stage");
     const main = document.getElementById("main");
+    main.replaceChildren(); // clear
+
     const ep = findEpisode(key);
 
     if (ep) {
       // YES — new episode this Saturday
+      stage.classList.remove("season-over");
       const when = isTodaySaturday()
         ? "Tonight at 11:30 PM ET"
         : `Saturday · ${fmtLong(key)} · 11:30 PM ET`;
-      main.innerHTML = `
-        <div class="question">Is SNL new this week?</div>
-        <div class="answer">YES.</div>
-        <div class="subhead">${ep.note ? "★ " + ep.note.toUpperCase() + " ★" : when}</div>
-        <div class="details">
-          <div class="detail">
-            <div class="detail-label">Host</div>
-            <div class="detail-value ${ep.double ? "double" : ""}">${ep.host}</div>
-          </div>
-          <div class="detail">
-            <div class="detail-label">Musical Guest</div>
-            <div class="detail-value ${ep.double ? "double" : ""}">${ep.guest}</div>
-          </div>
-        </div>
-      `;
+      const subText = ep.note ? `★ ${ep.note.toUpperCase()} ★` : when;
+      main.append(
+        el("div", { class: "question" }, "Is SNL new this week?"),
+        el("div", { class: "answer" }, "YES."),
+        el("div", { class: "subhead" }, subText),
+        el("div", { class: "details" },
+          detailCell("Host", ep.host, ep.double),
+          detailCell("Musical Guest", ep.guest, ep.double),
+        ),
+      );
       return;
     }
 
@@ -460,43 +507,44 @@
 
     if (!next) {
       // Season is over
-      document.getElementById("stage").classList.add("season-over");
+      stage.classList.add("season-over");
       const finale = SCHEDULE[SCHEDULE.length - 1];
-      main.innerHTML = `
-        <div class="question">Is SNL new this week?</div>
-        <div class="answer no">NO.</div>
-        <div class="subhead">Season 51 has wrapped</div>
-        <div class="details single">
-          <div class="detail">
-            <div class="detail-label">Last Episode Aired</div>
-            <div class="detail-value">${fmtLong(finale.date)}</div>
-            <div class="detail-label" style="margin-top:18px">Hosted By</div>
-            <div class="detail-value">${finale.host}</div>
-          </div>
-        </div>
-      `;
+      main.append(
+        el("div", { class: "question" }, "Is SNL new this week?"),
+        el("div", { class: "answer no" }, "NO."),
+        el("div", { class: "subhead" }, "Season has wrapped"),
+        el("div", { class: "details single" },
+          el("div", { class: "detail" },
+            el("div", { class: "detail-label" }, "Last Episode Aired"),
+            el("div", { class: "detail-value" }, fmtLong(finale.date)),
+            el("div", { class: "detail-label", style: "margin-top:18px" }, "Hosted By"),
+            el("div", { class: "detail-value" }, finale.host),
+          ),
+        ),
+      );
       return;
     }
 
     // NO — not new this week, here's when it returns
-    main.innerHTML = `
-      <div class="question">Is SNL new this week?</div>
-      <div class="answer no">NO.</div>
-      <div class="subhead">Returns ${fmtLong(next.date)}</div>
-      <div class="details">
-        <div class="detail">
-          <div class="detail-label">Next Host</div>
-          <div class="detail-value ${next.double ? "double" : ""}">${next.host}</div>
-        </div>
-        <div class="detail">
-          <div class="detail-label">Musical Guest</div>
-          <div class="detail-value ${next.double ? "double" : ""}">${next.guest}</div>
-        </div>
-      </div>
-    `;
+    stage.classList.remove("season-over");
+    main.append(
+      el("div", { class: "question" }, "Is SNL new this week?"),
+      el("div", { class: "answer no" }, "NO."),
+      el("div", { class: "subhead" }, `Returns ${fmtLong(next.date)}`),
+      el("div", { class: "details" },
+        detailCell("Next Host", next.host, next.double),
+        detailCell("Musical Guest", next.guest, next.double),
+      ),
+    );
   }
 
   render();
+
+  // Re-render when the tab regains visibility — handles users who left
+  // the tab open across a day boundary (e.g. Saturday night → Sunday).
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") render();
+  });
 </script>
 </body>
 </html>
