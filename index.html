@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Is SNL New This Week?</title>
+<meta name="description" content="Is SNL new this week? A quick yes/no answer with host and musical guest details for the current Saturday." />
+<meta name="theme-color" content="#0a0a0a" />
+
+<!-- Open Graph / social sharing -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Is SNL New This Week?" />
+<meta property="og:description" content="A quick yes/no answer with host and musical guest." />
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Is SNL New This Week?" />
+<meta name="twitter:description" content="A quick yes/no answer with host and musical guest." />
+
+<!-- Favicon: yellow bulb on black, matches the marquee aesthetic -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0a0a'/><circle cx='50' cy='50' r='26' fill='%23ffd60a'/><circle cx='42' cy='42' r='8' fill='%23fff4b8' opacity='0.7'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f2e8;
+    --yellow: #ffd60a;
+    --yellow-soft: #f5c518;
+    --red: #e63946;
+    --bulb-on: #fff4b8;
+    --bulb-off: #5c4a0e;
+    --rule: rgba(245, 242, 232, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    overflow-x: hidden;
+  }
+
+  /* film grain */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: overlay;
+    z-index: 100;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  /* marquee bulb borders */
+  .bulbs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 14px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 22px;
+    z-index: 50;
+    pointer-events: none;
+  }
+  .bulbs.top { top: 14px; }
+  .bulbs.bottom { bottom: 14px; }
+
+  .bulb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bulb-on);
+    box-shadow: 0 0 8px var(--bulb-on), 0 0 16px rgba(255, 244, 184, 0.4);
+    animation: chase 1.2s steps(1) infinite;
+  }
+  .bulb:nth-child(2n) { animation-delay: 0.4s; }
+  .bulb:nth-child(3n) { animation-delay: 0.8s; }
+
+  @keyframes chase {
+    0%, 50% { background: var(--bulb-on); box-shadow: 0 0 8px var(--bulb-on), 0 0 16px rgba(255, 244, 184, 0.5); }
+    51%, 100% { background: var(--bulb-off); box-shadow: none; }
+  }
+
+  /* layout */
+  .stage {
+    min-height: 100dvh;
+    padding: 56px clamp(24px, 5vw, 80px) 56px;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(24px, 4vh, 48px);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* top bar */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out 0.2s forwards;
+  }
+  .topbar .brand {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: var(--yellow);
+  }
+  .topbar .brand .live-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    margin-right: 8px;
+    transform: translateY(-2px);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(230, 57, 70, 0.6); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(230, 57, 70, 0); }
+  }
+  .topbar .date { color: var(--paper); opacity: 0.6; }
+
+  /* main answer */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    text-align: center;
+    position: relative;
+  }
+
+  .question {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 700;
+    font-size: clamp(18px, 2.4vw, 28px);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0;
+    animation: fadeIn 0.7s ease-out 0.4s forwards;
+  }
+
+  .answer {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 900;
+    font-size: clamp(130px, 30vw, 420px);
+    line-height: 0.82;
+    color: var(--yellow);
+    letter-spacing: -0.04em;
+    margin: 0.05em 0;
+    text-shadow:
+      4px 4px 0 var(--red),
+      8px 8px 0 var(--ink);
+    transform: translateY(20px);
+    opacity: 0;
+    animation: dropIn 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards;
+  }
+
+  .answer.no { color: var(--paper); text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink); }
+
+  @keyframes dropIn {
+    0% { transform: translateY(40px) scale(0.96); opacity: 0; }
+    60% { transform: translateY(-6px) scale(1.01); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes fadeIn { to { opacity: 1; } }
+
+  .subhead {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 1.5vw, 18px);
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--paper);
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out 1.0s forwards;
+  }
+
+  /* details grid */
+  .details {
+    margin-top: clamp(20px, 4vh, 48px);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    opacity: 0;
+    animation: fadeIn 0.7s ease-out 1.2s forwards;
+  }
+
+  .details.single { grid-template-columns: 1fr; }
+
+  .detail {
+    padding: clamp(20px, 3vh, 32px) clamp(16px, 3vw, 32px);
+    text-align: left;
+    border-right: 1px solid var(--rule);
+    position: relative;
+  }
+  .detail:last-child { border-right: none; }
+
+  .detail-label {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--yellow);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .detail-label::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 1px;
+    background: var(--yellow);
+  }
+
+  .detail-value {
+    font-family: "Big Shoulders Display", sans-serif;
+    font-weight: 800;
+    font-size: clamp(28px, 3.8vw, 52px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    color: var(--paper);
+  }
+
+  .detail-value.double::after {
+    content: "★ DOUBLE DUTY";
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    margin-top: 10px;
+  }
+
+  /* bottom strip */
+  .bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeIn 0.6s ease-out 1.4s forwards;
+  }
+  .bottom .lfny { color: var(--yellow); font-weight: 700; }
+  .bottom .meta { color: var(--paper); opacity: 0.5; }
+
+  /* season over state */
+  .season-over .answer { font-size: clamp(80px, 14vw, 200px); color: var(--red); }
+  .season-over .answer { text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink); }
+
+  /* mobile */
+  @media (max-width: 700px) {
+    .stage { padding: 44px 18px 44px; gap: 24px; }
+    .bulbs { padding: 0 12px; }
+    .bulb { width: 7px; height: 7px; }
+    .topbar { flex-direction: column; gap: 6px; }
+    .details { grid-template-columns: 1fr; }
+    .detail { border-right: none; border-bottom: 1px solid var(--rule); }
+    .detail:last-child { border-bottom: none; }
+    .bottom { flex-direction: column; gap: 8px; }
+    .answer { text-shadow: 3px 3px 0 var(--red), 5px 5px 0 var(--ink); }
+  }
+</style>
+</head>
+<body>
+  <div class="bulbs top" id="bulbsTop"></div>
+  <div class="bulbs bottom" id="bulbsBottom"></div>
+
+  <main class="stage" id="stage">
+    <header class="topbar">
+      <div class="brand"><span class="live-dot"></span>SATURDAY NIGHT LIVE · S51</div>
+      <div class="date" id="todayDate">—</div>
+    </header>
+
+    <section class="main" id="main">
+      <!-- Filled by JS -->
+    </section>
+
+    <footer class="bottom">
+      <div class="lfny">LIVE FROM NEW YORK · IT'S SATURDAY NIGHT</div>
+      <div class="meta">11:30 PM ET / 8:30 PM PT · NBC + PEACOCK</div>
+    </footer>
+  </main>
+
+<script>
+  // --- Season 51 hardcoded schedule -------------------------------------
+  // Source: NBC, Hollywood Reporter, Wikipedia (verified April 2026).
+  // To update: edit this array. Dates are YYYY-MM-DD (the Saturday airdate).
+  const SCHEDULE = [
+    { date: "2025-10-04", host: "Bad Bunny",          guest: "Doja Cat" },
+    { date: "2025-10-11", host: "Amy Poehler",        guest: "Role Model" },
+    { date: "2025-10-18", host: "Sabrina Carpenter",  guest: "Sabrina Carpenter", double: true },
+    { date: "2025-11-01", host: "Miles Teller",       guest: "Brandi Carlile" },
+    { date: "2025-11-08", host: "Nikki Glaser",       guest: "sombr" },
+    { date: "2025-11-15", host: "Glen Powell",        guest: "Olivia Dean" },
+    { date: "2025-12-06", host: "Melissa McCarthy",   guest: "Dijon" },
+    { date: "2025-12-13", host: "Josh O'Connor",      guest: "Lily Allen" },
+    { date: "2025-12-20", host: "Ariana Grande",      guest: "Cher" },
+    { date: "2026-01-17", host: "Finn Wolfhard",      guest: "A$AP Rocky" },
+    { date: "2026-01-24", host: "Teyana Taylor",      guest: "Geese" },
+    { date: "2026-01-31", host: "Alexander Skarsgård",guest: "Cardi B", note: "1,000th episode" },
+    { date: "2026-02-28", host: "Connor Storrie",     guest: "Mumford & Sons" },
+    { date: "2026-03-07", host: "Ryan Gosling",       guest: "Gorillaz" },
+    { date: "2026-03-14", host: "Harry Styles",       guest: "Harry Styles", double: true },
+    { date: "2026-04-04", host: "Jack Black",         guest: "Jack White" },
+    { date: "2026-04-11", host: "Colman Domingo",     guest: "Anitta" },
+    { date: "2026-05-02", host: "Olivia Rodrigo",     guest: "Olivia Rodrigo", double: true },
+    { date: "2026-05-09", host: "Matt Damon",         guest: "Noah Kahan" },
+    { date: "2026-05-16", host: "Will Ferrell",       guest: "Paul McCartney", note: "Season finale" },
+  ];
+
+  // --- helpers ----------------------------------------------------------
+  // "This week" = Sunday through Saturday. So checking on Sun-Fri points
+  // to the upcoming Saturday; checking on Saturday points to today.
+  // (Result: Sunday rolls forward to next week, not back to last night.)
+  function thisWeeksSaturday() {
+    const d = new Date();
+    const daysUntilSat = (6 - d.getDay() + 7) % 7; // 0 if today is Sat
+    d.setDate(d.getDate() + daysUntilSat);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function isTodaySaturday() {
+    return new Date().getDay() === 6;
+  }
+
+  function fmtLong(key) {
+    // "2026-05-02" -> "MAY 2, 2026"
+    const [y, m, d] = key.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  }
+
+  function fmtTopbar(key) {
+    const [y, m, d] = key.split("-").map(Number);
+    const date = new Date(y, m - 1, d);
+    const months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    return `WEEK OF · SAT ${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  }
+
+  function findEpisode(key) {
+    return SCHEDULE.find(e => e.date === key) || null;
+  }
+
+  function findNextAfter(key) {
+    return SCHEDULE.find(e => e.date > key) || null;
+  }
+
+  // --- bulb generation --------------------------------------------------
+  function makeBulbs(el) {
+    const count = Math.max(20, Math.floor(window.innerWidth / 28));
+    el.innerHTML = "";
+    for (let i = 0; i < count; i++) {
+      const b = document.createElement("div");
+      b.className = "bulb";
+      b.style.animationDelay = `${(i % 6) * 0.2}s`;
+      el.appendChild(b);
+    }
+  }
+  makeBulbs(document.getElementById("bulbsTop"));
+  makeBulbs(document.getElementById("bulbsBottom"));
+  window.addEventListener("resize", () => {
+    makeBulbs(document.getElementById("bulbsTop"));
+    makeBulbs(document.getElementById("bulbsBottom"));
+  });
+
+  // --- render -----------------------------------------------------------
+  function render() {
+    const key = thisWeeksSaturday();
+    document.getElementById("todayDate").textContent = fmtTopbar(key);
+
+    const main = document.getElementById("main");
+    const ep = findEpisode(key);
+
+    if (ep) {
+      // YES — new episode this Saturday
+      const when = isTodaySaturday()
+        ? "Tonight at 11:30 PM ET"
+        : `Saturday · ${fmtLong(key)} · 11:30 PM ET`;
+      main.innerHTML = `
+        <div class="question">Is SNL new this week?</div>
+        <div class="answer">YES.</div>
+        <div class="subhead">${ep.note ? "★ " + ep.note.toUpperCase() + " ★" : when}</div>
+        <div class="details">
+          <div class="detail">
+            <div class="detail-label">Host</div>
+            <div class="detail-value ${ep.double ? "double" : ""}">${ep.host}</div>
+          </div>
+          <div class="detail">
+            <div class="detail-label">Musical Guest</div>
+            <div class="detail-value ${ep.double ? "double" : ""}">${ep.guest}</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const next = findNextAfter(key);
+
+    if (!next) {
+      // Season is over
+      document.getElementById("stage").classList.add("season-over");
+      const finale = SCHEDULE[SCHEDULE.length - 1];
+      main.innerHTML = `
+        <div class="question">Is SNL new this week?</div>
+        <div class="answer no">NO.</div>
+        <div class="subhead">Season 51 has wrapped</div>
+        <div class="details single">
+          <div class="detail">
+            <div class="detail-label">Last Episode Aired</div>
+            <div class="detail-value">${fmtLong(finale.date)}</div>
+            <div class="detail-label" style="margin-top:18px">Hosted By</div>
+            <div class="detail-value">${finale.host}</div>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // NO — not new this week, here's when it returns
+    main.innerHTML = `
+      <div class="question">Is SNL new this week?</div>
+      <div class="answer no">NO.</div>
+      <div class="subhead">Returns ${fmtLong(next.date)}</div>
+      <div class="details">
+        <div class="detail">
+          <div class="detail-label">Next Host</div>
+          <div class="detail-value ${next.double ? "double" : ""}">${next.host}</div>
+        </div>
+        <div class="detail">
+          <div class="detail-label">Musical Guest</div>
+          <div class="detail-value ${next.double ? "double" : ""}">${next.guest}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  render();
+</script>
+</body>
+</html>
