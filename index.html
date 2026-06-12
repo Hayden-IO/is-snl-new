@@ -8,19 +8,27 @@
 <meta name="theme-color" content="#0a0a0a" />
 
 <!-- Open Graph / social sharing -->
+<link rel="canonical" href="https://issnlnew.com/" />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://issnlnew.com/" />
 <meta property="og:title" content="Is SNL New This Week?" />
 <meta property="og:description" content="A quick yes/no answer with host and musical guest." />
+<meta property="og:image" content="https://issnlnew.com/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Is SNL new this week? Live from New York, it's Saturday night." />
 
 <!-- Twitter / X -->
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Is SNL New This Week?" />
 <meta name="twitter:description" content="A quick yes/no answer with host and musical guest." />
+<meta name="twitter:image" content="https://issnlnew.com/og-image.png" />
 
 <!-- Favicon: yellow bulb on black, matches the marquee aesthetic -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230a0a0a'/><circle cx='50' cy='50' r='26' fill='%23ffd60a'/><circle cx='42' cy='42' r='8' fill='%23fff4b8' opacity='0.7'/></svg>" />
 <style>
   :root {
+    color-scheme: dark;
     --ink: #0a0a0a;
     --paper: #f5f2e8;
     --yellow: #ffd60a;
@@ -88,7 +96,8 @@
   /* layout */
   .stage {
     height: 100dvh;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: clamp(36px, 5vh, 56px) clamp(24px, 5vw, 80px);
     display: flex;
     flex-direction: column;
@@ -385,18 +394,24 @@
   // "This week" = Sunday through Saturday. So checking on Sun-Fri points
   // to the upcoming Saturday; checking on Saturday points to today.
   // (Result: Sunday rolls forward to next week, not back to last night.)
+  function todayInET() {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).formatToParts(new Date());
+    const get = type => parts.find(p => p.type === type).value;
+    return `${get("year")}-${get("month")}-${get("day")}`;
+  }
+
   function thisWeeksSaturday() {
-    const d = new Date();
-    const daysUntilSat = (6 - d.getDay() + 7) % 7; // 0 if today is Sat
-    d.setDate(d.getDate() + daysUntilSat);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+    const [y, m, d] = todayInET().split("-").map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d));
+    dt.setUTCDate(dt.getUTCDate() + (6 - dt.getUTCDay() + 7) % 7);
+    return dt.toISOString().slice(0, 10);
   }
 
   function isTodaySaturday() {
-    return new Date().getDay() === 6;
+    return todayInET() === thisWeeksSaturday();
   }
 
   function fmtLong(key) {
@@ -435,7 +450,10 @@
   }
   makeBulbs(document.getElementById("bulbsTop"));
   makeBulbs(document.getElementById("bulbsBottom"));
+  let lastBulbWidth = window.innerWidth;
   window.addEventListener("resize", () => {
+    if (window.innerWidth === lastBulbWidth) return;
+    lastBulbWidth = window.innerWidth;
     makeBulbs(document.getElementById("bulbsTop"));
     makeBulbs(document.getElementById("bulbsBottom"));
   });
@@ -500,7 +518,7 @@
       const when = isTodaySaturday()
         ? "Tonight at 11:30 PM ET"
         : `Saturday · ${fmtLong(key)} · 11:30 PM ET`;
-      const subText = ep.note ? `★ ${ep.note.toUpperCase()} ★` : when;
+      const subText = ep.note ? `★ ${ep.note.toUpperCase()} ★ · ${when}` : when;
       main.append(
         el("div", { class: "question" }, "Is SNL new this week?"),
         el("div", { class: "answer" }, "YES."),
@@ -545,6 +563,7 @@
   }
 
   render();
+  setInterval(render, 60000);
 
   // Re-render when the tab regains visibility — handles users who left
   // the tab open across a day boundary (e.g. Saturday night → Sunday).
