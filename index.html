@@ -291,7 +291,6 @@
 
   /* season over state */
   .season-over .answer {
-    font-size: clamp(80px, 14vw, 200px);
     color: var(--red);
     text-shadow: 4px 4px 0 var(--yellow), 8px 8px 0 var(--ink);
   }
@@ -331,6 +330,7 @@
     .bottom { flex-direction: column; gap: 8px; }
     .answer, .answer.no { text-shadow: 3px 3px 0 var(--red), 5px 5px 0 var(--ink); }
     .answer.no { text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 var(--ink); }
+    .season-over .answer { text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 var(--ink); }
   }
 </style>
 </head>
@@ -525,8 +525,6 @@
           el("div", { class: "detail" },
             el("div", { class: "detail-label" }, "Last Episode Aired"),
             el("div", { class: "detail-value" }, fmtLong(finale.date)),
-            el("div", { class: "detail-label", style: "margin-top:18px" }, "Hosted By"),
-            el("div", { class: "detail-value" }, finale.host),
           ),
         ),
       );
