@@ -61,9 +61,7 @@ jobs:
               --title "$TITLE" \
               --body-file CHANGES.md \
               --base main \
-              --head "$BRANCH" \
-              --label automated \
-              --label schedule-update
+              --head "$BRANCH"
           fi
 
       - name: Cleanup CHANGES.md
