@@ -28,22 +28,43 @@ jobs:
 
       - name: Create pull request
         if: steps.update.outputs.has_changes == 'true'
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # 8.1.1
-        with:
-          commit-message: |
-            chore(schedule): sync season ${{ steps.update.outputs.season }} from TVMaze
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: chore/snl-schedule-update
+          SEASON: ${{ steps.update.outputs.season }}
+          ADDED: ${{ steps.update.outputs.added_count }}
+          CHANGED: ${{ steps.update.outputs.changed_count }}
+        run: |
+          set -euo pipefail
 
-            +${{ steps.update.outputs.added_count }} added,
-            ~${{ steps.update.outputs.changed_count }} changed
-          title: "Sync SNL Season ${{ steps.update.outputs.season }} schedule"
-          body-path: CHANGES.md
-          branch: chore/snl-schedule-update
-          delete-branch: true
-          labels: |
-            automated
-            schedule-update
-          add-paths: |
-            index.html
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B "$BRANCH"
+          git add index.html
+
+          if git diff --cached --quiet; then
+            echo "No staged changes to index.html; skipping PR."
+            exit 0
+          fi
+
+          BODY=$(printf '+%s added,\n~%s changed' "$ADDED" "$CHANGED")
+          git commit -m "chore(schedule): sync season $SEASON from TVMaze" -m "$BODY"
+          git push --force origin "$BRANCH"
+
+          TITLE="Sync SNL Season $SEASON schedule"
+
+          if gh pr view "$BRANCH" --json state --jq .state 2>/dev/null | grep -qx OPEN; then
+            gh pr edit "$BRANCH" --title "$TITLE" --body-file CHANGES.md
+          else
+            gh pr create \
+              --title "$TITLE" \
+              --body-file CHANGES.md \
+              --base main \
+              --head "$BRANCH" \
+              --label automated \
+              --label schedule-update
+          fi
 
       - name: Cleanup CHANGES.md
         if: always()
